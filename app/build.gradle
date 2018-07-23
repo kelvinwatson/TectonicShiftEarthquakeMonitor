@@ -1,0 +1,50 @@
+apply plugin: 'com.android.application'
+apply plugin: "androidx.navigation.safeargs"
+
+android {
+    compileSdkVersion 28
+    defaultConfig {
+        applicationId "com.kelvinwatson.tectonicshiftearthquakemonitor"
+        minSdkVersion 15
+        targetSdkVersion 28
+        versionCode 1
+        versionName "1.0"
+        testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
+    }
+    buildTypes {
+        release {
+            minifyEnabled false
+            proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'), 'proguard-rules.pro'
+        }
+    }
+}
+
+dependencies {
+    implementation fileTree(dir: 'libs', include: ['*.jar'])
+    implementation 'androidx.appcompat:appcompat:1.0.0-alpha1'
+    implementation 'com.google.android.material:material:1.0.0-alpha1'
+    implementation 'androidx.constraintlayout:constraintlayout:1.1.2'
+    implementation 'androidx.vectordrawable:vectordrawable:1.0.0-alpha1'
+
+    //Navigation
+    def navigationVersion = "1.0.0-alpha04"
+    implementation "android.arch.navigation:navigation-fragment:$navigationVersion"
+    implementation "android.arch.navigation:navigation-ui:$navigationVersion"
+    implementation 'androidx.legacy:legacy-support-v4:1.0.0-alpha1'
+    androidTestImplementation "android.arch.navigation:navigation-testing:$navigationVersion"
+
+    // ViewModel and LiveData
+    def lifeCycleVersion = "2.0.0-beta01"
+    implementation "androidx.lifecycle:lifecycle-extensions:$lifeCycleVersion"
+    annotationProcessor "androidx.lifecycle:lifecycle-compiler:$lifeCycleVersion"
+    //alternately - if using Java8, use the following instead of compiler
+    //implementation "android.arch.lifecycle:common-java8:lifeCycleVersion"
+    testImplementation "androidx.arch.core:core-testing:$lifeCycleVersion"
+
+    def retrofitVersion = "2.4.0";
+    implementation "com.squareup.retrofit2:retrofit:$retrofitVersion"
+
+    testImplementation 'junit:junit:4.12'
+    androidTestImplementation 'androidx.test:runner:1.1.0-alpha3'
+    androidTestImplementation 'androidx.test.espresso:espresso-core:3.1.0-alpha3'
+}
