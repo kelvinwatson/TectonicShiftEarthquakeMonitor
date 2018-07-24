@@ -41,8 +41,13 @@ dependencies {
     //implementation "android.arch.lifecycle:common-java8:lifeCycleVersion"
     testImplementation "androidx.arch.core:core-testing:$lifeCycleVersion"
 
-    def retrofitVersion = "2.4.0";
-    implementation "com.squareup.retrofit2:retrofit:$retrofitVersion"
+    def dagger2Version = "2.16";
+    implementation "com.google.dagger:dagger:$dagger2Version"
+    annotationProcessor "com.google.dagger:dagger-compiler:$dagger2Version"
+
+    def retrofitVersion = "2.0.0-beta2"
+    implementation "com.squareup.retrofit:retrofit:$retrofitVersion"
+    implementation "com.squareup.retrofit:converter-gson:$retrofitVersion"
 
     testImplementation 'junit:junit:4.12'
     androidTestImplementation 'androidx.test:runner:1.1.0-alpha3'

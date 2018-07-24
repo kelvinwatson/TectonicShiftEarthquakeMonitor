@@ -1,15 +1,13 @@
 package com.kelvinwatson.tectonicshiftearthquakemonitor.service;
 
-import com.kelvinwatson.tectonicshiftearthquakemonitor.viewmodel.Earthquake;
-
-import java.util.List;
+import com.kelvinwatson.tectonicshiftearthquakemonitor.viewmodel.Earthquakes;
 import java.util.Map;
+import retrofit.Call;
+import retrofit.http.GET;
+import retrofit.http.QueryMap;
 
-import retrofit2.Call;
-import retrofit2.http.GET;
-import retrofit2.http.QueryMap;
-
-public interface EarthquakesService {
+public interface EarthquakesService
+{
     @GET("earthquakesJSON")
-    Call<List<Earthquake>> getEarthquakes(@QueryMap Map<String, String> options);
+    Call<Earthquakes> getEarthquakes(@QueryMap Map<String, String> options);
 }
