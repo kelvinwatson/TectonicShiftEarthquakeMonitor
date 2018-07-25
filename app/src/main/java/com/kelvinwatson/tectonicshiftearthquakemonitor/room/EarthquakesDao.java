@@ -15,6 +15,9 @@ public interface EarthquakesDao
     @Insert(onConflict = REPLACE)
     void save(List<Earthquake> earthquakes);
 
-    @Query("SELECT * from earthquakes")
+    @Query("SELECT * FROM earthquakes")
     LiveData<List<Earthquake>> load();
+
+    @Query("SELECT count(*) FROM earthquakes")
+    int rowCount();
 }

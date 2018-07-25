@@ -9,7 +9,6 @@ import androidx.lifecycle.Observer;
 import androidx.lifecycle.ViewModelProviders;
 import com.kelvinwatson.tectonicshiftearthquakemonitor.MyApp;
 import com.kelvinwatson.tectonicshiftearthquakemonitor.R;
-import com.kelvinwatson.tectonicshiftearthquakemonitor.repository.DaggerEarthquakesComponent;
 import com.kelvinwatson.tectonicshiftearthquakemonitor.room.Earthquakes.Earthquake;
 import com.kelvinwatson.tectonicshiftearthquakemonitor.viewmodel.EarthquakesViewModel;
 import java.util.List;

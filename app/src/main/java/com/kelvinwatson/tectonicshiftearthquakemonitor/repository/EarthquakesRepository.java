@@ -62,6 +62,10 @@ public class EarthquakesRepository
 
         new LoadEarthquakesTask(earthquakesDao, queryParams).execute();
 
+        /*
+        Returns computableLiveData, which doesn't show the value until dispatched to observers
+        https://github.com/googlesamples/android-architecture-components/issues/44
+         */
         return earthquakesDao.load();
     }
 
@@ -96,6 +100,11 @@ public class EarthquakesRepository
                 .addConverterFactory(GsonConverterFactory.create()).build();
 
             final MutableLiveData<List<Earthquake>> data = new MutableLiveData<>();
+            if (dao.rowCount() > 0)
+            {
+                return dao.load();
+            }
+
             EarthquakesService service = retrofit.create(EarthquakesService.class);
             service.getEarthquakes(queryParams).enqueue(new Callback<Earthquakes>()
             {
@@ -122,29 +131,6 @@ public class EarthquakesRepository
                 }
             });
             return data;
-        }
-
-        @Override
-        protected void onPostExecute(final LiveData<List<Earthquake>> earthquakes)
-        {
-            super.onPostExecute(earthquakes);
-            if (earthquakes != null)
-            {
-                AsyncTask.execute(new Runnable()
-                {
-                    @Override
-                    public void run()
-                    {
-                        try
-                        {
-                            dao.save(earthquakes.getValue());
-                        } catch (Exception e)
-                        {
-
-                        }
-                    }
-                });
-            }
         }
     }
 }
