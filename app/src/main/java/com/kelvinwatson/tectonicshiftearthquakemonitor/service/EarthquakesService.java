@@ -1,6 +1,6 @@
 package com.kelvinwatson.tectonicshiftearthquakemonitor.service;
 
-import com.kelvinwatson.tectonicshiftearthquakemonitor.viewmodel.Earthquakes;
+import com.kelvinwatson.tectonicshiftearthquakemonitor.room.Earthquakes;
 import java.util.Map;
 import retrofit.Call;
 import retrofit.http.GET;

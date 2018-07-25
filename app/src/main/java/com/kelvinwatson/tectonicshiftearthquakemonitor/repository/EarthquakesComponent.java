@@ -5,7 +5,7 @@ import dagger.Component;
 import javax.inject.Singleton;
 
 @Singleton
-@Component(modules = {EarthquakesRespositoryModule.class})
+@Component(modules = {EarthquakesRepositoryModule.class})
 public interface EarthquakesComponent
 {
     /**

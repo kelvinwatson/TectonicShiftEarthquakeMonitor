@@ -7,8 +7,10 @@ import android.view.ViewGroup;
 import androidx.annotation.Nullable;
 import androidx.lifecycle.Observer;
 import androidx.lifecycle.ViewModelProviders;
+import com.kelvinwatson.tectonicshiftearthquakemonitor.MyApp;
 import com.kelvinwatson.tectonicshiftearthquakemonitor.R;
-import com.kelvinwatson.tectonicshiftearthquakemonitor.viewmodel.Earthquakes.Earthquake;
+import com.kelvinwatson.tectonicshiftearthquakemonitor.repository.DaggerEarthquakesComponent;
+import com.kelvinwatson.tectonicshiftearthquakemonitor.room.Earthquakes.Earthquake;
 import com.kelvinwatson.tectonicshiftearthquakemonitor.viewmodel.EarthquakesViewModel;
 import java.util.List;
 
@@ -40,7 +42,7 @@ public class ResultsFragment extends BaseFragment
                 onEarthquakeListChanged(earthquakes);
             }
         };
-        viewModel.getEarthquakes("44.1", "9.9", "22.4", "55.2", getString(R.string.earthquakes_api_user))
+        viewModel.getEarthquakes((MyApp)getActivity().getApplication(),"44.1", "9.9", "22.4", "55.2", getString(R.string.earthquakes_api_user))
             .observe(this, earthquakeListObserver);
     }
 

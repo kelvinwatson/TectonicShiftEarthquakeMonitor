@@ -1,14 +1,19 @@
 package com.kelvinwatson.tectonicshiftearthquakemonitor.repository;
 
+import android.os.AsyncTask;
 import androidx.annotation.NonNull;
 import androidx.lifecycle.LiveData;
 import androidx.lifecycle.MutableLiveData;
+import com.kelvinwatson.tectonicshiftearthquakemonitor.MyApp;
+import com.kelvinwatson.tectonicshiftearthquakemonitor.room.EarthquakeDatabase;
+import com.kelvinwatson.tectonicshiftearthquakemonitor.room.Earthquakes;
+import com.kelvinwatson.tectonicshiftearthquakemonitor.room.Earthquakes.Earthquake;
+import com.kelvinwatson.tectonicshiftearthquakemonitor.room.EarthquakesDao;
 import com.kelvinwatson.tectonicshiftearthquakemonitor.service.EarthquakesService;
-import com.kelvinwatson.tectonicshiftearthquakemonitor.viewmodel.Earthquakes;
-import com.kelvinwatson.tectonicshiftearthquakemonitor.viewmodel.Earthquakes.Earthquake;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import javax.inject.Inject;
 import javax.inject.Singleton;
 import retrofit.Callback;
 import retrofit.GsonConverterFactory;
@@ -29,14 +34,21 @@ public class EarthquakesRepository
      Stores the earthquake list based on its coordinates (queryParams_
      */
     private Map<Map<String, String>, LiveData<List<Earthquake>>> cache = new HashMap<>();
+    private EarthquakesDao earthquakesDao;
+    private LiveData<List<Earthquake>> earthquakes;
+
+    @Inject
+    public EarthquakesRepository(MyApp application)
+    {
+        earthquakesDao = EarthquakeDatabase.getInstance(application).earthquakesDao();
+    }
 
     /**
-     * @param isFormatted API parameter
-     * @param north       coordinate
-     * @param east        coordinate
-     * @param south       coordinate
-     * @param west        coordinate
-     * @param username    API user
+     * @param north    coordinate
+     * @param east     coordinate
+     * @param south    coordinate
+     * @param west     coordinate
+     * @param username API user
      */
     @NonNull
     public LiveData<List<Earthquake>> getEarthquakes(String north, String east, String south,
@@ -44,34 +56,13 @@ public class EarthquakesRepository
     {
         Map<String, String> queryParams = buildQueryParams(north, east, south, west, username);
 
-        // should return cached value if present
-        LiveData<List<Earthquake>> cached = cache.get(queryParams);
-        if (cached != null)
-            return cached;
+        LiveData<List<Earthquake>> fromCache = cache.get(queryParams);
+        if (fromCache != null)
+            return fromCache;
 
-        Retrofit retrofit = new Retrofit.Builder().baseUrl("http://api.geonames.org")
-            .addConverterFactory(GsonConverterFactory.create()).build();
+        new LoadEarthquakesTask(earthquakesDao, queryParams).execute();
 
-        EarthquakesService service = retrofit.create(EarthquakesService.class);
-
-        //FIXME: this should not live here
-        final MutableLiveData<List<Earthquake>> data = new MutableLiveData<>();
-
-        service.getEarthquakes(queryParams).enqueue(new Callback<Earthquakes>()
-        {
-            @Override
-            public void onResponse(final Response<Earthquakes> response, final Retrofit retrofit)
-            {
-                data.setValue(response.body().earthquakes);
-            }
-
-            @Override
-            public void onFailure(final Throwable t)
-            {
-                System.out.println("abc");
-            }
-        });
-        return data;
+        return earthquakesDao.load();
     }
 
     private static Map<String, String> buildQueryParams(String north, String east, String south,
@@ -85,5 +76,75 @@ public class EarthquakesRepository
         queryParams.put(QUERY_KEY_WEST, west);
         queryParams.put(QUERY_USERNAME, username);
         return queryParams;
+    }
+
+    private static class LoadEarthquakesTask extends AsyncTask<Void, Void, LiveData<List<Earthquake>>>
+    {
+        private final EarthquakesDao dao;
+        private final Map<String, String> queryParams;
+
+        public LoadEarthquakesTask(@NonNull EarthquakesDao dao, @NonNull Map<String, String> queryParams)
+        {
+            this.dao = dao;
+            this.queryParams = queryParams;
+        }
+
+        @Override
+        protected LiveData<List<Earthquake>> doInBackground(final Void... voids)
+        {
+            Retrofit retrofit = new Retrofit.Builder().baseUrl("http://api.geonames.org")
+                .addConverterFactory(GsonConverterFactory.create()).build();
+
+            final MutableLiveData<List<Earthquake>> data = new MutableLiveData<>();
+            EarthquakesService service = retrofit.create(EarthquakesService.class);
+            service.getEarthquakes(queryParams).enqueue(new Callback<Earthquakes>()
+            {
+                @Override
+                public void onResponse(final Response<Earthquakes> response, final Retrofit retrofit)
+                {
+                    final List<Earthquake> earthquakes = response.body().earthquakes;
+                    data.setValue(earthquakes);
+
+                    AsyncTask.execute(new Runnable()
+                    {
+                        @Override
+                        public void run()
+                        {
+                            dao.save(earthquakes);
+                        }
+                    });
+                }
+
+                @Override
+                public void onFailure(final Throwable t)
+                {
+                    System.out.println("abc");
+                }
+            });
+            return data;
+        }
+
+        @Override
+        protected void onPostExecute(final LiveData<List<Earthquake>> earthquakes)
+        {
+            super.onPostExecute(earthquakes);
+            if (earthquakes != null)
+            {
+                AsyncTask.execute(new Runnable()
+                {
+                    @Override
+                    public void run()
+                    {
+                        try
+                        {
+                            dao.save(earthquakes.getValue());
+                        } catch (Exception e)
+                        {
+
+                        }
+                    }
+                });
+            }
+        }
     }
 }
