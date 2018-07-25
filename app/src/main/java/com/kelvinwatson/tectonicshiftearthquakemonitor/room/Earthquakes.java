@@ -8,6 +8,9 @@ public class Earthquakes
 {
     public List<Earthquake> earthquakes;
 
+    /**
+     * Used as the POJO for serialization and deserialization, but also the object entity for the room db
+     */
     @Entity(tableName = "earthquakes", primaryKeys = {"longitude", "latitude"})
     public static class Earthquake
     {
@@ -21,5 +24,6 @@ public class Earthquakes
         public double magnitude;
         @SerializedName("lat")
         public double latitude;
+        public long timeLastFetchedMs;
     }
 }

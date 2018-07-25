@@ -2,6 +2,7 @@ package com.kelvinwatson.tectonicshiftearthquakemonitor.repository;
 
 import android.os.AsyncTask;
 import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
 import androidx.lifecycle.LiveData;
 import androidx.lifecycle.MutableLiveData;
 import com.kelvinwatson.tectonicshiftearthquakemonitor.MyApp;
@@ -10,6 +11,7 @@ import com.kelvinwatson.tectonicshiftearthquakemonitor.room.Earthquakes;
 import com.kelvinwatson.tectonicshiftearthquakemonitor.room.Earthquakes.Earthquake;
 import com.kelvinwatson.tectonicshiftearthquakemonitor.room.EarthquakesDao;
 import com.kelvinwatson.tectonicshiftearthquakemonitor.service.EarthquakesService;
+import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -23,6 +25,7 @@ import retrofit.Retrofit;
 @Singleton
 public class EarthquakesRepository
 {
+    private static final long TIME_OUT_MILLISECONDS = 8 * 60 * 60 * 1000; //8 hours
     private static final String QUERY_KEY_FORMATTED = "formatted";
     private static final String QUERY_KEY_NORTH = "north";
     private static final String QUERY_KEY_EAST = "east";
@@ -82,6 +85,23 @@ public class EarthquakesRepository
         return queryParams;
     }
 
+    private static void preProcessEarthquakesForDb(@Nullable List<Earthquake> earthquakes)
+    {
+        if (earthquakes == null || earthquakes.isEmpty())
+            return;
+
+        long dbWriteTime = new Date().getTime();
+        for (Earthquake e : earthquakes)
+        {
+            e.timeLastFetchedMs = dbWriteTime;
+        }
+    }
+
+    private static boolean hasTimedOutRows(int numTimedOutEntries)
+    {
+        return numTimedOutEntries > 0;
+    }
+
     private static class LoadEarthquakesTask extends AsyncTask<Void, Void, LiveData<List<Earthquake>>>
     {
         private final EarthquakesDao dao;
@@ -100,7 +120,7 @@ public class EarthquakesRepository
                 .addConverterFactory(GsonConverterFactory.create()).build();
 
             final MutableLiveData<List<Earthquake>> data = new MutableLiveData<>();
-            if (dao.rowCount() > 0)
+            if (hasTimedOutRows(dao.getTimedOutRows(TIME_OUT_MILLISECONDS, new Date().getTime())) || dao.getRowCount() > 0)
             {
                 return dao.load();
             }
@@ -119,6 +139,8 @@ public class EarthquakesRepository
                         @Override
                         public void run()
                         {
+                            // add timestamp to each earthquake to allow querying db freshness at later time
+                            preProcessEarthquakesForDb(earthquakes);
                             dao.save(earthquakes);
                         }
                     });

@@ -18,6 +18,9 @@ public interface EarthquakesDao
     @Query("SELECT * FROM earthquakes")
     LiveData<List<Earthquake>> load();
 
-    @Query("SELECT count(*) FROM earthquakes")
-    int rowCount();
+    @Query("SELECT COUNT(*) FROM earthquakes")
+    int getRowCount();
+
+    @Query("SELECT COUNT(*) FROM earthquakes WHERE :currentTimeMs - timeLastFetchedMs >= :timeOut")
+    int getTimedOutRows(long currentTimeMs, long timeOut);
 }
