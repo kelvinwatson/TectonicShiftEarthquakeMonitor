@@ -5,11 +5,11 @@ import androidx.appcompat.app.ActionBar;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.fragment.app.Fragment;
 
-public class BaseFragment extends Fragment
+public abstract class BaseFragment extends Fragment implements ItemClickListener
 {
     /**
      * Utility to remove navigate up button from fragment. This appears to be a bug with the
-     * {@link }PNavigation controller.
+     * {@link androidx.navigation.NavController}.
      */
     protected static void removeNavigateUp(@NonNull AppCompatActivity activity)
     {

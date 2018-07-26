@@ -6,13 +6,12 @@ import android.view.View;
 import android.view.ViewGroup;
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.lifecycle.ViewModel;
 import com.kelvinwatson.tectonicshiftearthquakemonitor.R;
 
 
 public class SettingsFragment extends BaseFragment
 {
-
-
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState)
     {
@@ -23,6 +22,12 @@ public class SettingsFragment extends BaseFragment
     public void onActivityCreated(@Nullable Bundle savedInstanceState)
     {
         super.onActivityCreated(savedInstanceState);
-        removeNavigateUp((AppCompatActivity) getActivity());
+        removeNavigateUp((AppCompatActivity)getActivity());
+    }
+
+    @Override
+    public boolean onItemClick(final View view, final ViewModel viewModel)
+    {
+        return false;
     }
 }

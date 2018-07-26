@@ -1,9 +1,17 @@
 <resources>
-    <string name="app_name">TectonicShiftEarthquakeMonitor</string>
+    <string name="app_name">Tectonic Shift Earthquake Monitor</string>
     <string name="title_results">Earthquakes</string>
     <string name="title_map">Map</string>
     <string name="title_settings">Settings</string>
     <string name="hello_blank_fragment">Hello blank fragment</string>
-
+    <string name="results_empty">No earthquakes to display</string>
+    <string name="reload">Reload</string>
     <string name="earthquakes_api_user">mkoppelman</string>
+    <string name="view_on_map">View on map</string>
+    <string name="header_results">Monitoring earthquakes at</string>
+    <string name="header_coordinates">%1$s°N | %2$s°E | %2$s°S | %2$s°W</string>
+    <string name="label_latitude">lat %1$s</string>
+    <string name="label_longitude">lng %1$s</string>
+    <string name="label_depth">depth %1$s</string>
+    <string name="label_eqid">eqid %1$s</string>
 </resources>

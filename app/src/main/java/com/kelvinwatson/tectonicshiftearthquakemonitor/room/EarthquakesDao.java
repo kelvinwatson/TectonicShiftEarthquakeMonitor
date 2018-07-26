@@ -6,17 +6,17 @@ import androidx.lifecycle.LiveData;
 import androidx.room.Dao;
 import androidx.room.Insert;
 import androidx.room.Query;
-import com.kelvinwatson.tectonicshiftearthquakemonitor.room.Earthquakes.Earthquake;
+import com.kelvinwatson.tectonicshiftearthquakemonitor.viewmodel.EarthquakeViewModel;
 import java.util.List;
 
 @Dao
 public interface EarthquakesDao
 {
     @Insert(onConflict = REPLACE)
-    void save(List<Earthquake> earthquakes);
+    void save(List<EarthquakeViewModel> earthquakes);
 
     @Query("SELECT * FROM earthquakes")
-    LiveData<List<Earthquake>> load();
+    LiveData<List<EarthquakeViewModel>> load();
 
     @Query("SELECT COUNT(*) FROM earthquakes")
     int getRowCount();

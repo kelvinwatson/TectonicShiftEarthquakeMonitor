@@ -4,9 +4,9 @@ import android.content.Context;
 import androidx.room.Database;
 import androidx.room.Room;
 import androidx.room.RoomDatabase;
-import com.kelvinwatson.tectonicshiftearthquakemonitor.room.Earthquakes.Earthquake;
+import com.kelvinwatson.tectonicshiftearthquakemonitor.viewmodel.EarthquakeViewModel;
 
-@Database(entities = {Earthquake.class}, version = 4)
+@Database(entities = {EarthquakeViewModel.class}, version = 4)
 public abstract class EarthquakeDatabase extends RoomDatabase
 {
     public abstract EarthquakesDao earthquakesDao();

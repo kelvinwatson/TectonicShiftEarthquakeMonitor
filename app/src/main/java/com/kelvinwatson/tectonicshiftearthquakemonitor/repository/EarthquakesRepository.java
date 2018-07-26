@@ -8,9 +8,9 @@ import androidx.lifecycle.MutableLiveData;
 import com.kelvinwatson.tectonicshiftearthquakemonitor.MyApp;
 import com.kelvinwatson.tectonicshiftearthquakemonitor.room.EarthquakeDatabase;
 import com.kelvinwatson.tectonicshiftearthquakemonitor.room.Earthquakes;
-import com.kelvinwatson.tectonicshiftearthquakemonitor.room.Earthquakes.Earthquake;
 import com.kelvinwatson.tectonicshiftearthquakemonitor.room.EarthquakesDao;
 import com.kelvinwatson.tectonicshiftearthquakemonitor.service.EarthquakesService;
+import com.kelvinwatson.tectonicshiftearthquakemonitor.viewmodel.EarthquakeViewModel;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
@@ -36,9 +36,9 @@ public class EarthquakesRepository
     /*
      Stores the earthquake list based on its coordinates (queryParams_
      */
-    private Map<Map<String, String>, LiveData<List<Earthquake>>> cache = new HashMap<>();
+    private Map<Map<String, String>, LiveData<List<EarthquakeViewModel>>> cache = new HashMap<>();
     private EarthquakesDao earthquakesDao;
-    private LiveData<List<Earthquake>> earthquakes;
+    private LiveData<List<EarthquakeViewModel>> earthquakes;
 
     @Inject
     public EarthquakesRepository(MyApp application)
@@ -54,12 +54,12 @@ public class EarthquakesRepository
      * @param username API user
      */
     @NonNull
-    public LiveData<List<Earthquake>> getEarthquakes(String north, String east, String south,
+    public LiveData<List<EarthquakeViewModel>> getEarthquakes(String north, String east, String south,
         String west, String username)
     {
         Map<String, String> queryParams = buildQueryParams(north, east, south, west, username);
 
-        LiveData<List<Earthquake>> fromCache = cache.get(queryParams);
+        LiveData<List<EarthquakeViewModel>> fromCache = cache.get(queryParams);
         if (fromCache != null)
             return fromCache;
 
@@ -85,13 +85,13 @@ public class EarthquakesRepository
         return queryParams;
     }
 
-    private static void preProcessEarthquakesForDb(@Nullable List<Earthquake> earthquakes)
+    private static void preProcessEarthquakesForDb(@Nullable List<EarthquakeViewModel> earthquakes)
     {
         if (earthquakes == null || earthquakes.isEmpty())
             return;
 
         long dbWriteTime = new Date().getTime();
-        for (Earthquake e : earthquakes)
+        for (EarthquakeViewModel e : earthquakes)
         {
             e.timeLastFetchedMs = dbWriteTime;
         }
@@ -102,7 +102,13 @@ public class EarthquakesRepository
         return numTimedOutEntries > 0;
     }
 
-    private static class LoadEarthquakesTask extends AsyncTask<Void, Void, LiveData<List<Earthquake>>>
+    private static boolean hasValidData(EarthquakesDao dao)
+    {
+        return !hasTimedOutRows(dao.getTimedOutRows(TIME_OUT_MILLISECONDS, new Date().getTime()))
+            && dao.getRowCount() > 0;
+    }
+
+    private static class LoadEarthquakesTask extends AsyncTask<Void, Void, LiveData<List<EarthquakeViewModel>>>
     {
         private final EarthquakesDao dao;
         private final Map<String, String> queryParams;
@@ -114,24 +120,24 @@ public class EarthquakesRepository
         }
 
         @Override
-        protected LiveData<List<Earthquake>> doInBackground(final Void... voids)
+        protected LiveData<List<EarthquakeViewModel>> doInBackground(final Void... voids)
         {
             Retrofit retrofit = new Retrofit.Builder().baseUrl("http://api.geonames.org")
                 .addConverterFactory(GsonConverterFactory.create()).build();
 
-            final MutableLiveData<List<Earthquake>> data = new MutableLiveData<>();
-            if (hasTimedOutRows(dao.getTimedOutRows(TIME_OUT_MILLISECONDS, new Date().getTime())) || dao.getRowCount() > 0)
+            if (hasValidData(dao)) // is db data still fresh?
             {
-                return dao.load();
+                return dao.load(); //load from database
             }
 
+            final MutableLiveData<List<EarthquakeViewModel>> data = new MutableLiveData<>();
             EarthquakesService service = retrofit.create(EarthquakesService.class);
             service.getEarthquakes(queryParams).enqueue(new Callback<Earthquakes>()
             {
                 @Override
                 public void onResponse(final Response<Earthquakes> response, final Retrofit retrofit)
                 {
-                    final List<Earthquake> earthquakes = response.body().earthquakes;
+                    final List<EarthquakeViewModel> earthquakes = response.body().earthquakes;
                     data.setValue(earthquakes);
 
                     AsyncTask.execute(new Runnable()

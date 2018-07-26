@@ -1,0 +1,124 @@
+<?xml version="1.0" encoding="utf-8"?>
+<layout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools">
+
+    <data>
+
+        <import type="android.view.View" />
+
+        <variable
+            name="itemClickListener"
+            type="com.kelvinwatson.tectonicshiftearthquakemonitor.uicontrollers.ItemClickListener" />
+
+        <variable
+            name="earthquake"
+            type="com.kelvinwatson.tectonicshiftearthquakemonitor.viewmodel.EarthquakeViewModel" />
+    </data>
+
+    <com.google.android.material.card.MaterialCardView
+        style="@style/Widget.MaterialComponents.CardView"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginBottom="@dimen/activity_vertical_margin"
+        app:cardBackgroundColor="@android:color/white"
+        app:cardCornerRadius="0dp">
+
+        <androidx.constraintlayout.widget.ConstraintLayout
+            android:layout_width="match_parent"
+            android:layout_height="match_parent">
+
+            <androidx.constraintlayout.widget.ConstraintLayout
+                android:id="@+id/earthquake_details_parent"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:background="@{earthquake.getMagnitudeColor(context)}"
+                android:minHeight="@dimen/earthquake_image_height"
+                app:layout_constraintBottom_toTopOf="@+id/button_learn_more"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toTopOf="parent"
+                tools:background="@color/colorEarthquakeMagnitudeMajor">
+
+                <TextView
+                    android:id="@+id/text_magnitude"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:fontFamily="sans-serif-thin"
+                    android:text="@{String.valueOf(earthquake.magnitude)}"
+                    android:textAppearance="?attr/textAppearanceHeadline2"
+                    app:layout_constraintBottom_toTopOf="@+id/text_latitude"
+                    app:layout_constraintEnd_toEndOf="parent"
+                    app:layout_constraintStart_toStartOf="parent"
+                    app:layout_constraintTop_toTopOf="parent"
+                    app:layout_constraintVertical_chainStyle="packed"
+                    tools:text="6.8" />
+
+                <TextView
+                    android:id="@+id/text_latitude"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginRight="@dimen/activity_horizontal_margin_half"
+                    android:text="@{String.format(@string/label_latitude, String.valueOf(earthquake.latitude))}"
+                    app:layout_constraintBottom_toBottomOf="@+id/text_eqid"
+                    app:layout_constraintEnd_toStartOf="@+id/text_longitude"
+                    app:layout_constraintHorizontal_chainStyle="packed"
+                    app:layout_constraintStart_toStartOf="parent"
+                    app:layout_constraintTop_toBottomOf="@+id/text_magnitude"
+                    app:layout_constraintVertical_chainStyle="packed"
+                    tools:text="lat" />
+
+                <TextView
+                    android:id="@+id/text_longitude"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginLeft="@dimen/activity_horizontal_margin_half"
+                    android:text="@{String.format(@string/label_longitude, String.valueOf(earthquake.longitude))}"
+                    app:layout_constraintBottom_toTopOf="@id/text_depth"
+                    app:layout_constraintEnd_toEndOf="parent"
+                    app:layout_constraintHorizontal_chainStyle="packed"
+                    app:layout_constraintStart_toEndOf="@+id/text_latitude"
+                    app:layout_constraintTop_toBottomOf="@+id/text_magnitude"
+                    tools:text="lng" />
+
+                <TextView
+                    android:id="@+id/text_eqid"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginRight="@dimen/activity_horizontal_margin_half"
+                    android:text="@{String.format(@string/label_eqid, earthquake.eqid)}"
+                    app:layout_constraintBottom_toBottomOf="parent"
+                    app:layout_constraintEnd_toStartOf="@+id/text_depth"
+                    app:layout_constraintHorizontal_chainStyle="packed"
+                    app:layout_constraintStart_toStartOf="parent"
+                    app:layout_constraintTop_toBottomOf="@+id/text_latitude"
+                    app:layout_constraintVertical_chainStyle="packed"
+                    tools:text="eqid" />
+
+                <TextView
+                    android:id="@+id/text_depth"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginLeft="@dimen/activity_horizontal_margin_half"
+                    android:text="@{String.format(@string/label_depth, String.valueOf(earthquake.depth))}"
+                    app:layout_constraintEnd_toEndOf="parent"
+                    app:layout_constraintHorizontal_chainStyle="packed"
+                    app:layout_constraintStart_toEndOf="@+id/text_eqid"
+                    app:layout_constraintTop_toBottomOf="@+id/text_longitude"
+                    tools:text="depth" />
+            </androidx.constraintlayout.widget.ConstraintLayout>
+
+            <com.google.android.material.button.MaterialButton
+                android:id="@+id/button_learn_more"
+                style="@style/Widget.MaterialComponents.Button.TextButton"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginVertical="@dimen/activity_vertical_margin_half"
+                android:onClick="@{(view)->itemClickListener.onItemClick(view, earthquake)}"
+                android:text="@string/view_on_map"
+                app:layout_constraintBottom_toBottomOf="parent"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintTop_toBottomOf="@+id/earthquake_details_parent" />
+        </androidx.constraintlayout.widget.ConstraintLayout>
+    </com.google.android.material.card.MaterialCardView>
+</layout>
